@@ -24,15 +24,20 @@ public class ExpressionParser implements Parser {
     CBR,
     VAR,
     ERR,
-    NEU
+    NEU,
+    AND,
+    XOR,
+    OR,
+    NOT,
+    BTC
   }
 
   private Token token = Token.ERR;
 
-  private boolean checkVariableName() {
+  private boolean checkVariableName(String token) {
     boolean res = false;
     for (String s : variableNames) {
-      if (s.equals(varName)) {
+      if (s.equals(token)) {
         res = true;
         break;
       }
@@ -74,6 +79,14 @@ public class ExpressionParser implements Parser {
       token = Token.OBR;
     } else if (ch == ')') {
       token = Token.CBR;
+    } else if (ch == '&') {
+      token = Token.AND;
+    } else if (ch == '^') {
+      token = Token.XOR;
+    } else if (ch == '|') {
+      token = Token.OR;
+    } else if (ch == '~') {
+      token = Token.NOT;
     } else if (Character.isDigit(ch)) {
       constValue = 0;
       while (index < expression.length() && Character.isDigit(expression.charAt(index))) {
@@ -83,14 +96,17 @@ public class ExpressionParser implements Parser {
       token = Token.INT;
       index--;
     } else if (Character.isAlphabetic(ch)) {
-      StringBuilder varNameSB = new StringBuilder();
+      StringBuilder tokenSB = new StringBuilder();
       while (index < expression.length() && Character.isAlphabetic(expression.charAt(index))) {
-        varNameSB.append(expression.charAt(index));
+        tokenSB.append(expression.charAt(index));
         index++;
       }
-      varName = varNameSB.toString();
-      if (checkVariableName()) {
+      String tokenStr = tokenSB.toString();
+      if (tokenStr.equals("count")) {
+        token = Token.BTC;
+      } else if (checkVariableName(tokenStr)) {
         token = Token.VAR;
+        varName = tokenStr;
       } else {
         token = Token.ERR;
       }
@@ -100,7 +116,7 @@ public class ExpressionParser implements Parser {
   }
 
   private TripleExpression lowestPriority() {
-    return binAdd();
+    return or();
   }
 
   private TripleExpression unary() {
@@ -117,6 +133,12 @@ public class ExpressionParser implements Parser {
         break;
       case NEG:
         res = new Neg(unary());
+        break;
+      case NOT:
+        res = new Not(unary());
+        break;
+      case BTC:
+        res = new Count(unary());
         break;
       case OBR:
         res = lowestPriority();
@@ -160,12 +182,50 @@ public class ExpressionParser implements Parser {
     }
   }
 
+  private TripleExpression and() {
+    TripleExpression res = binAdd();
+    while (true) {
+      switch (token) {
+        case AND:
+          res = new And(res, binAdd());
+          break;
+        default:
+          return res;
+      }
+    }
+  }
+
+  private TripleExpression xor() {
+    TripleExpression res = and();
+    while (true) {
+      switch (token) {
+        case XOR:
+          res = new Xor(res, and());
+          break;
+        default:
+          return res;
+      }
+    }
+  }
+
+  private TripleExpression or() {
+    TripleExpression res = xor();
+    while (true) {
+      switch (token) {
+        case OR:
+          res = new Or(res, xor());
+          break;
+        default:
+          return res;
+      }
+    }
+  }
 
   public TripleExpression parse(String expression) {
     index = 0;
     this.expression = expression;
     token = Token.NEU;
-    return binAdd();
+    return lowestPriority();
   }
 
 
