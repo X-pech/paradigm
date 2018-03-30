@@ -1,6 +1,7 @@
 package expression.parser;
 
 import expression.*;
+import expression.exceptions.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,8 +10,10 @@ public class ExpressionParser implements Parser {
 
   private String expression;
   private int index = 0;
+  private int balance = 0;
   private int constValue;
   private String varName;
+  private boolean negUp;
   private List<String> variableNames = Arrays.asList("x", "y", "z");
 
   private enum Token {
@@ -19,20 +22,21 @@ public class ExpressionParser implements Parser {
     ADD,
     SUB,
     NEG,
-    INT,
+    CST,
     OBR,
     CBR,
     VAR,
-    ERR,
+    INV,
     NEU,
     AND,
     XOR,
     OR,
     NOT,
-    BTC
+    BTC,
+    OWF
   }
 
-  private Token token = Token.ERR;
+  private Token token = Token.INV;
 
   private boolean checkVariableName(String token) {
     boolean res = false;
@@ -51,49 +55,102 @@ public class ExpressionParser implements Parser {
     }
   }
 
-  private int parseCharToInt(char ch) {
-    return ch - '0';
+  private boolean checkBinary(Token t) {
+    return (t == Token.ADD || t == Token.SUB || t == Token.MUL || t == Token.DIV || t == Token.AND || t == Token.XOR
+        || t == Token.OR);
   }
 
-  private void parseToken() {
+  private boolean checkUnary(Token t) {
+    return (t == Token.BTC || t == Token.NOT || t == Token.NEG);
+  }
+
+  private boolean checkOperand(Token t) {
+    return (t == Token.VAR || t == Token.CST);
+  }
+
+  private void setToken(Token t) throws ParsingException {
+    if ((checkBinary(t) || t == Token.CBR || t == Token.NEU) && !(checkOperand(token) || token == Token.CBR)) {
+      throw new MissingOperandException(expression, index);
+    }
+
+    if (checkOperand(t) && checkOperand(token)) {
+      throw new MissingOperationException(expression, index);
+    }
+
+    if (t == Token.CBR && balance == 0) {
+      throw new MissingOpeningBracketException(expression, index);
+    }
+
+    if (t == Token.OBR && (token == Token.CBR || checkOperand(token))) {
+      throw new IncorrectOpeningBracketException(expression, index);
+    }
+
+    if (t == Token.NEU && balance > 0) {
+      throw new MissingClosingBracketException(expression, balance);
+    }
+
+    if (t == Token.INV) {
+      throw new IncorrectSymbolException(expression, index);
+    }
+
+    if (t == Token.OWF) {
+      throw new ParsingOverflowException(expression, index);
+    }
+
+    token = t;
+  }
+
+  private void parseToken() throws ParsingException {
     skipSpaces();
     if (index >= expression.length()) {
-      token = Token.NEU;
+      setToken(Token.NEU);
       return;
     }
     char ch = expression.charAt(index);
 
     if (ch == '*') {
-      token = Token.MUL;
+      setToken(Token.MUL);
     } else if (ch == '/') {
-      token = Token.DIV;
+      setToken(Token.DIV);
     } else if (ch == '+') {
-      token = Token.ADD;
+      setToken(Token.ADD);
     } else if (ch == '-') {
-      if (token == Token.VAR || token == Token.INT || token == Token.CBR) {
-        token = Token.SUB;
+      if (token == Token.VAR || token == Token.CST || token == Token.CBR) {
+        setToken(Token.SUB);
       } else {
-        token = Token.NEG;
+        setToken(Token.NEG);
       }
     } else if (ch == '(') {
-      token = Token.OBR;
+      setToken(Token.OBR);
+      balance++;
     } else if (ch == ')') {
-      token = Token.CBR;
+      setToken(Token.CBR);
+      balance--;
     } else if (ch == '&') {
-      token = Token.AND;
+      setToken(Token.AND);
     } else if (ch == '^') {
-      token = Token.XOR;
+      setToken(Token.XOR);
     } else if (ch == '|') {
-      token = Token.OR;
+      setToken(Token.OR);
     } else if (ch == '~') {
-      token = Token.NOT;
+      setToken(Token.NOT);
     } else if (Character.isDigit(ch)) {
-      constValue = 0;
+      StringBuilder constSB = new StringBuilder();
+      if (token == Token.NEG) {
+        constSB.append('-');
+        negUp = true;
+      }
       while (index < expression.length() && Character.isDigit(expression.charAt(index))) {
-        constValue = constValue * 10 + parseCharToInt(expression.charAt(index));
+        constSB.append(expression.charAt(index));
         index++;
       }
-      token = Token.INT;
+      constValue = 0;
+      try {
+        constValue = Integer.parseInt(constSB.toString());
+        setToken(Token.CST);
+      } catch (NumberFormatException e) {
+        setToken(Token.OWF);
+      }
       index--;
     } else if (Character.isAlphabetic(ch)) {
       StringBuilder tokenSB = new StringBuilder();
@@ -103,27 +160,29 @@ public class ExpressionParser implements Parser {
       }
       String tokenStr = tokenSB.toString();
       if (tokenStr.equals("count")) {
-        token = Token.BTC;
+        setToken(Token.BTC);
       } else if (checkVariableName(tokenStr)) {
-        token = Token.VAR;
+        setToken(Token.VAR);
         varName = tokenStr;
       } else {
-        token = Token.ERR;
+        setToken(Token.INV);
       }
       index--;
+    } else {
+      setToken(Token.INV);
     }
     index++;
   }
 
-  private TripleExpression lowestPriority() {
+  private TripleExpression lowestPriority() throws ParsingException {
     return or();
   }
 
-  private TripleExpression unary() {
+  private TripleExpression unary() throws ParsingException {
     parseToken();
     TripleExpression res;
     switch (token) {
-      case INT:
+      case CST:
         res = new Const(constValue);
         parseToken();
         break;
@@ -132,7 +191,14 @@ public class ExpressionParser implements Parser {
         parseToken();
         break;
       case NEG:
-        res = new Neg(unary());
+        res = unary();
+        if (negUp && res instanceof Const) {
+          negUp = false;
+        } else if (res instanceof CheckedNegate) {
+          res = ((CheckedNegate) res).getExpression();
+        } else {
+          res = new CheckedNegate(res);
+        }
         break;
       case NOT:
         res = new Not(unary());
@@ -150,15 +216,15 @@ public class ExpressionParser implements Parser {
     return res;
   }
 
-  private TripleExpression binMul() {
+  private TripleExpression binMul() throws ParsingException {
     TripleExpression res = unary();
     while (true) {
       switch (token) {
         case MUL:
-          res = new Multiply(res, unary());
+          res = new CheckedMultiply(res, unary());
           break;
         case DIV:
-          res = new Divide(res, unary());
+          res = new CheckedDivide(res, unary());
           break;
         default:
           return res;
@@ -166,15 +232,15 @@ public class ExpressionParser implements Parser {
     }
   }
 
-  private TripleExpression binAdd() {
+  private TripleExpression binAdd() throws ParsingException {
     TripleExpression res = binMul();
     while (true) {
       switch (token) {
         case ADD:
-          res = new Add(res, binMul());
+          res = new CheckedAdd(res, binMul());
           break;
         case SUB:
-          res = new Subtract(res, binMul());
+          res = new CheckedSubtract(res, binMul());
           break;
         default:
           return res;
@@ -182,7 +248,7 @@ public class ExpressionParser implements Parser {
     }
   }
 
-  private TripleExpression and() {
+  private TripleExpression and() throws ParsingException {
     TripleExpression res = binAdd();
     while (true) {
       switch (token) {
@@ -195,7 +261,7 @@ public class ExpressionParser implements Parser {
     }
   }
 
-  private TripleExpression xor() {
+  private TripleExpression xor() throws ParsingException {
     TripleExpression res = and();
     while (true) {
       switch (token) {
@@ -208,7 +274,7 @@ public class ExpressionParser implements Parser {
     }
   }
 
-  private TripleExpression or() {
+  private TripleExpression or() throws ParsingException {
     TripleExpression res = xor();
     while (true) {
       switch (token) {
@@ -221,8 +287,9 @@ public class ExpressionParser implements Parser {
     }
   }
 
-  public TripleExpression parse(String expression) {
-    index = 0;
+  public TripleExpression parse(String expression) throws ParsingException {
+    index = balance = 0;
+    negUp = false;
     this.expression = expression;
     token = Token.NEU;
     return lowestPriority();

@@ -1,12 +1,10 @@
 package expression;
 
-public class Variable implements TripleExpression {
+public class Variable extends Operand {
 
   private String name;
 
   public Variable(String name) {
-    assert name != null;
-    assert name.equals("x") || name.equals("y") || name.equals("z");
     this.name = name;
   }
 
@@ -19,7 +17,6 @@ public class Variable implements TripleExpression {
   }
 
   public int evaluate(int x, int y, int z) {
-
     switch (name) {
       case "x":
         return x;

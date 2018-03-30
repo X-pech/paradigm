@@ -11,6 +11,7 @@ public interface Either<L, R> {
   boolean isLeft();
 
   L getLeft();
+
   R getRight();
 
   static <L, R> Either<L, R> right(final R value) {

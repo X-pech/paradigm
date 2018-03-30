@@ -1,6 +1,6 @@
 package expression;
 
-public class Const implements TripleExpression {
+public class Const extends Operand {
   private double value;
 
   public Const(int x) {

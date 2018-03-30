@@ -1,7 +1,5 @@
 package queue;
 
-import java.lang.reflect.Array;
-
 // capacity - data.length
 // INV: START_CAPACITY > 0 ^ capacity > 0 ^ 0 <= front < capacity
 // INV: size < capacity

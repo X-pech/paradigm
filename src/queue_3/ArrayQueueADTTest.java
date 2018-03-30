@@ -1,7 +1,8 @@
 package queue_3;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ArrayQueueADTTest {
   @Test
@@ -41,7 +42,7 @@ class ArrayQueueADTTest {
   @Test
   void element() {
     ArrayQueueADT queueADT = new ArrayQueueADT();
-    ArrayQueueADT.enqueue(queueADT,25);
+    ArrayQueueADT.enqueue(queueADT, 25);
     ArrayQueueADT.enqueue(queueADT, 45);
     assertEquals(25, (int) ArrayQueueADT.element(queueADT));
   }
@@ -49,8 +50,8 @@ class ArrayQueueADTTest {
   @Test
   void peek() {
     ArrayQueueADT queueADT = new ArrayQueueADT();
-    ArrayQueueADT.enqueue(queueADT,25);
-    ArrayQueueADT.enqueue(queueADT,45);
+    ArrayQueueADT.enqueue(queueADT, 25);
+    ArrayQueueADT.enqueue(queueADT, 45);
     assertEquals(45, (int) ArrayQueueADT.peek(queueADT));
   }
 
@@ -65,7 +66,7 @@ class ArrayQueueADTTest {
   @Test
   void remove() {
     ArrayQueueADT queueADT = new ArrayQueueADT();
-    ArrayQueueADT.enqueue(queueADT,25);
+    ArrayQueueADT.enqueue(queueADT, 25);
     ArrayQueueADT.remove(queueADT);
     assertEquals(0, ArrayQueueADT.size(queueADT));
   }
@@ -73,7 +74,7 @@ class ArrayQueueADTTest {
   @Test
   void size() {
     ArrayQueueADT queueADT = new ArrayQueueADT();
-    int s = (int)(Math.random() * 100);
+    int s = (int) (Math.random() * 100);
     for (int i = 0; i < s; i++) {
       ArrayQueueADT.enqueue(queueADT, i);
     }
@@ -93,7 +94,7 @@ class ArrayQueueADTTest {
   @Test
   void clear() {
     ArrayQueueADT queueADT = new ArrayQueueADT();
-    int s = (int)(Math.random() * 100);
+    int s = (int) (Math.random() * 100);
     for (int i = 0; i < s; i++) {
       ArrayQueueADT.enqueue(queueADT, i);
     }

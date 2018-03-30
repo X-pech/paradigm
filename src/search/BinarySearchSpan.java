@@ -67,7 +67,7 @@ public class BinarySearchSpan {
     // if INV & r - l == 1, a[r] <= x, a[r - 1] > x =>
     // R = r
     if (r - l == 1) {
-        return r;
+      return r;
     }
 
     int m = (l + r) / 2;

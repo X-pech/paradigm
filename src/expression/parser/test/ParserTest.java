@@ -1,8 +1,8 @@
 package expression.parser.test;
 
+import expression.TripleExpression;
 import expression.parser.ExpressionParser;
 import expression.test.BaseTest;
-import expression.TripleExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,7 @@ public class ParserTest extends BaseTest {
   private final static int D = 5;
 
   private final static List<Integer> TEST_VALUES = new ArrayList<>();
+
   static {
     addRange(TEST_VALUES, D, D);
     addRange(TEST_VALUES, D, -D);
@@ -192,7 +193,7 @@ public class ParserTest extends BaseTest {
   }
 
   private static Test p(final Test t) {
-    return new Test("("  + t.expr + ")", t.answer);
+    return new Test("(" + t.expr + ")", t.answer);
   }
 
   private Test binary(final List<Op<LongBinaryOperator>> ops, final Test t1, final Test t2) {

@@ -1,5 +1,7 @@
 package expression;
 
+import expression.exceptions.EvaluatingException;
+
 public abstract class UnaryOperation implements TripleExpression {
   private final TripleExpression expression;
 
@@ -8,9 +10,13 @@ public abstract class UnaryOperation implements TripleExpression {
     this.expression = expression;
   }
 
-  protected abstract int execute(int expRes);
+  public TripleExpression getExpression() {
+    return expression;
+  }
 
-  public int evaluate(int x, int y, int z) {
+  protected abstract int execute(int expRes) throws EvaluatingException;
+
+  public int evaluate(int x, int y, int z) throws EvaluatingException {
     return execute(expression.evaluate(x, y, z));
   }
 }

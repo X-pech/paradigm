@@ -1,7 +1,8 @@
 package queue_3;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ArrayQueueModuleTest {
   @Test
@@ -73,7 +74,7 @@ class ArrayQueueModuleTest {
   @Test
   void size() {
     ArrayQueueModule.clear();
-    int s = (int)(Math.random() * 100);
+    int s = (int) (Math.random() * 100);
     for (int i = 0; i < s; i++) {
       ArrayQueueModule.enqueue(i);
     }
@@ -93,7 +94,7 @@ class ArrayQueueModuleTest {
   @Test
   void clear() {
     ArrayQueueModule.clear();
-    int s = (int)(Math.random() * 100);
+    int s = (int) (Math.random() * 100);
     for (int i = 0; i < s; i++) {
       ArrayQueueModule.enqueue(i);
     }
