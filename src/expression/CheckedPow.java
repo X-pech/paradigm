@@ -1,5 +1,6 @@
 package expression;
 
+import expression.exceptions.BothPowOperandsAreZeroException;
 import expression.exceptions.EvaluatingException;
 import expression.exceptions.NegativePowerException;
 
@@ -14,7 +15,7 @@ public class CheckedPow extends BinaryOperation {
     }
 
     if (left == 0 && right == 0) {
-      throw new EvaluatingException("SOSAMBA");
+      throw new BothPowOperandsAreZeroException();
     }
   }
 
