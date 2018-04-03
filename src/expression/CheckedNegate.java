@@ -11,7 +11,7 @@ public class CheckedNegate extends UnaryOperation {
 
   private void check(int expRes) throws EvaluatingException {
     if (expRes == Integer.MIN_VALUE) {
-      throw new EvaluatingOverflowException(true, '-', expRes, 0);
+      throw new EvaluatingOverflowException(true, "-", expRes, 0);
     }
   }
 

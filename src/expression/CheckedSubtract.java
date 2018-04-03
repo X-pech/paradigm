@@ -11,7 +11,7 @@ public class CheckedSubtract extends BinaryOperation {
 
   private void check(int left, int right) throws EvaluatingException {
     if (right > 0 && Integer.MIN_VALUE + right > left || right < 0 && Integer.MAX_VALUE + right < left) {
-      throw new EvaluatingOverflowException(false, '-', left, right);
+      throw new EvaluatingOverflowException(false, "-", left, right);
     }
   }
 

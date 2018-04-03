@@ -14,7 +14,7 @@ public class CheckedMultiply extends BinaryOperation {
         (right > 0 && left > 0 && Integer.MAX_VALUE / right < left) ||
         (right > 0 && left < 0 && Integer.MIN_VALUE / right > left) ||
         (right < 0 && left > 0 && Integer.MIN_VALUE / left > right)) {
-      throw new EvaluatingOverflowException(false, '*', left, right);
+      throw new EvaluatingOverflowException(false, "*", left, right);
     }
   }
 

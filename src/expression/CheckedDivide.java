@@ -16,7 +16,7 @@ public class CheckedDivide extends BinaryOperation {
     }
 
     if (left == Integer.MIN_VALUE && right == -1) {
-      throw new EvaluatingOverflowException(false, '/', left, right);
+      throw new EvaluatingOverflowException(false, "/", left, right);
     }
   }
 

@@ -33,7 +33,11 @@ public class ExpressionParser implements Parser {
     OR,
     NOT,
     BTC,
-    OWF
+    OWF,
+    LGT,
+    PWT,
+    POW,
+    LOG
   }
 
   private Token token = Token.INV;
@@ -57,11 +61,11 @@ public class ExpressionParser implements Parser {
 
   private boolean checkBinary(Token t) {
     return (t == Token.ADD || t == Token.SUB || t == Token.MUL || t == Token.DIV || t == Token.AND || t == Token.XOR
-        || t == Token.OR);
+        || t == Token.OR || t == Token.LOG || t == Token.POW);
   }
 
   private boolean checkUnary(Token t) {
-    return (t == Token.BTC || t == Token.NOT || t == Token.NEG);
+    return (t == Token.BTC || t == Token.NOT || t == Token.NEG || t == Token.LGT || t == Token.PWT);
   }
 
   private boolean checkOperand(Token t) {
@@ -70,6 +74,10 @@ public class ExpressionParser implements Parser {
 
   private void setToken(Token t) throws ParsingException {
     if ((checkBinary(t) || t == Token.CBR || t == Token.NEU) && !(checkOperand(token) || token == Token.CBR)) {
+      throw new MissingOperandException(expression, index);
+    }
+
+    if (checkUnary(token) && !(checkOperand(t) || checkUnary(t) || t == Token.OBR)) {
       throw new MissingOperandException(expression, index);
     }
 
@@ -103,15 +111,26 @@ public class ExpressionParser implements Parser {
   private void parseToken() throws ParsingException {
     skipSpaces();
     if (index >= expression.length()) {
-      setToken(Token.NEU);
+      if (token != Token.NEU)
+        setToken(Token.NEU);
       return;
     }
     char ch = expression.charAt(index);
 
     if (ch == '*') {
-      setToken(Token.MUL);
+      if (index < expression.length() - 1 && expression.charAt(index + 1) == '*') {
+        setToken(Token.POW);
+        index++;
+      } else {
+        setToken(Token.MUL);
+      }
     } else if (ch == '/') {
-      setToken(Token.DIV);
+      if (index < expression.length() - 1 && expression.charAt(index + 1) == '/') {
+        setToken(Token.LOG);
+        index++;
+      } else {
+        setToken(Token.DIV);
+      }
     } else if (ch == '+') {
       setToken(Token.ADD);
     } else if (ch == '-') {
@@ -154,13 +173,17 @@ public class ExpressionParser implements Parser {
       index--;
     } else if (Character.isAlphabetic(ch)) {
       StringBuilder tokenSB = new StringBuilder();
-      while (index < expression.length() && Character.isAlphabetic(expression.charAt(index))) {
+      while (index < expression.length() && Character.isLetterOrDigit(expression.charAt(index))) {
         tokenSB.append(expression.charAt(index));
         index++;
       }
       String tokenStr = tokenSB.toString();
       if (tokenStr.equals("count")) {
         setToken(Token.BTC);
+      } else if (tokenStr.equals("log10")) {
+        setToken(Token.LGT);
+      } else if (tokenStr.equals("pow10")) {
+        setToken(Token.PWT);
       } else if (checkVariableName(tokenStr)) {
         setToken(Token.VAR);
         varName = tokenStr;
@@ -200,6 +223,12 @@ public class ExpressionParser implements Parser {
           res = new CheckedNegate(res);
         }
         break;
+      case LGT:
+        res = new CheckedLogTen(unary());
+        break;
+      case PWT:
+        res = new CheckedPowTen(unary());
+        break;
       case NOT:
         res = new Not(unary());
         break;
@@ -216,15 +245,31 @@ public class ExpressionParser implements Parser {
     return res;
   }
 
-  private TripleExpression binMul() throws ParsingException {
+  private TripleExpression powLog() throws ParsingException {
     TripleExpression res = unary();
     while (true) {
       switch (token) {
+        case POW:
+          res = new CheckedPow(res, unary());
+          break;
+        case LOG:
+          res = new CheckedLog(res, unary());
+          break;
+        default:
+          return res;
+      }
+    }
+  }
+
+  private TripleExpression binMul() throws ParsingException {
+    TripleExpression res = powLog();
+    while (true) {
+      switch (token) {
         case MUL:
-          res = new CheckedMultiply(res, unary());
+          res = new CheckedMultiply(res, powLog());
           break;
         case DIV:
-          res = new CheckedDivide(res, unary());
+          res = new CheckedDivide(res, powLog());
           break;
         default:
           return res;
