@@ -15,7 +15,7 @@ public class MainFilesChecker extends MainChecker {
   }
 
   private Path getFile(final String suffix) {
-    return Paths.get(String.format("expression.test%d.%s", counter.getTest() + 1, suffix));
+    return Paths.get(String.format("expressions.test%d.%s", counter.getTest() + 1, suffix));
   }
 
   protected List<String> runFiles(final List<String> input) {

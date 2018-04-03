@@ -1,4 +1,4 @@
-package expression.parser.test;
+package expression.test;
 
 import java.util.function.Function;
 

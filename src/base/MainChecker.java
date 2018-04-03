@@ -32,7 +32,7 @@ public class MainChecker extends Randomized {
 
   public List<String> run(final String... input) {
     counter.nextTest();
-    System.err.format("Running expression.test %02d: java %s \"%s\"\n", counter.getTest(), method.getDeclaringClass().getName(), join(input));
+    System.err.format("Running expressions.test %02d: java %s \"%s\"\n", counter.getTest(), method.getDeclaringClass().getName(), join(input));
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     final PrintStream oldOut = System.out;
     try {
