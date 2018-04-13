@@ -6,13 +6,13 @@ import expression.types.ParsingType;
 
 public class Multiply<T> extends BinaryOperationExpression<T> {
 
-  public Multiply(TripleExpression<T> left, TripleExpression<T> right, ParsingType<T> operation) throws NullExpressionException {
-    super(left, right, operation);
+  public Multiply(TripleExpression<T> left, TripleExpression<T> right, ParsingType<T> parsingType) throws NullExpressionException {
+    super(left, right, parsingType);
   }
 
   @Override
   protected T execute(T left, T right) throws EvaluatingException {
-    return operation.mul(left, right);
+    return parsingType.mul(left, right);
   }
 
 }

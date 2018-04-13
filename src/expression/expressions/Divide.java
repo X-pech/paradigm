@@ -6,13 +6,13 @@ import expression.types.ParsingType;
 
 public class Divide<T> extends BinaryOperationExpression<T> {
 
-  public Divide(TripleExpression<T> left, TripleExpression<T> right, ParsingType<T> operation) throws NullExpressionException {
-    super(left, right, operation);
+  public Divide(TripleExpression<T> left, TripleExpression<T> right, ParsingType<T> parsingType) throws NullExpressionException {
+    super(left, right, parsingType);
   }
 
   @Override
   protected T execute(T left, T right) throws EvaluatingException {
-    return operation.div(left, right);
+    return parsingType.div(left, right);
   }
 
 }

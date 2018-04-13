@@ -6,15 +6,15 @@ import expression.types.ParsingType;
 
 public abstract class UnaryOperationExpression<T> implements TripleExpression<T> {
   private final TripleExpression<T> expression;
-  protected final ParsingType<T> operation;
+  protected final ParsingType<T> parsingType;
 
-  public UnaryOperationExpression(TripleExpression<T> expression, ParsingType<T> operation)
+  public UnaryOperationExpression(TripleExpression<T> expression, ParsingType<T> parsingType)
       throws NullExpressionException {
     if (expression == null) {
       throw new NullExpressionException(false);
     }
     this.expression = expression;
-    this.operation = operation;
+    this.parsingType = parsingType;
   }
 
   public TripleExpression<T> getExpression() {

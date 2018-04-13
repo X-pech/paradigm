@@ -42,6 +42,25 @@ public class ParsingBigInteger extends AbstractParsingType<BigInteger> {
     return left.negate();
   }
 
+  public BigInteger count(BigInteger v) {
+    return fromInt(v.bitCount());
+  }
+
+  public BigInteger min(BigInteger left, BigInteger right) {
+    if (left.compareTo(right) <= 0)
+      return left;
+    else
+      return right;
+  }
+
+  public BigInteger max(BigInteger left, BigInteger right) {
+    if (left.compareTo(right) >= 0) {
+      return left;
+    } else {
+      return right;
+    }
+  }
+
   public BigInteger zero() {
     return BigInteger.ZERO;
   }

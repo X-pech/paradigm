@@ -6,7 +6,7 @@ import expression.exceptions.EvaluatingOverflowException;
 
 public class ParsingInteger extends AbstractParsingType<Integer> {
   public Integer parse(String s) throws NumberFormatException {
-      return Integer.parseInt(s);
+    return Integer.parseInt(s);
   }
 
   @Override
@@ -28,7 +28,7 @@ public class ParsingInteger extends AbstractParsingType<Integer> {
     return left - right;
   }
 
-  public Integer mul(Integer left, Integer right) throws EvaluatingException{
+  public Integer mul(Integer left, Integer right) throws EvaluatingException {
     if ((right < 0 && left < 0 && Integer.MAX_VALUE / right > left) ||
         (right > 0 && left > 0 && Integer.MAX_VALUE / right < left) ||
         (right > 0 && left < 0 && Integer.MIN_VALUE / right > left) ||
@@ -56,6 +56,26 @@ public class ParsingInteger extends AbstractParsingType<Integer> {
       throw new EvaluatingOverflowException(true, "-", left, 0);
     }
     return -left;
+  }
+
+  public Integer count(Integer v) throws EvaluatingException {
+    return Integer.bitCount(v);
+  }
+
+  public Integer min(Integer left, Integer right) {
+    if (left <= right) {
+      return left;
+    } else {
+      return right;
+    }
+  }
+
+  public Integer max(Integer left, Integer right) {
+    if (left >= right) {
+      return left;
+    } else {
+      return right;
+    }
   }
 
   public Integer evaluate(Integer v) {

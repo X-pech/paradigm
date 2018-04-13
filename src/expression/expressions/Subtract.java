@@ -6,13 +6,13 @@ import expression.types.ParsingType;
 
 public class Subtract<T> extends BinaryOperationExpression<T> {
 
-  public Subtract(TripleExpression<T> left, TripleExpression<T> right, ParsingType<T> operation) throws NullExpressionException {
-    super(left, right, operation);
+  public Subtract(TripleExpression<T> left, TripleExpression<T> right, ParsingType<T> parsingType) throws NullExpressionException {
+    super(left, right, parsingType);
   }
 
   @Override
   protected T execute(T left, T right) throws EvaluatingException {
-    return operation.sub(left, right);
+    return parsingType.sub(left, right);
   }
 
 }

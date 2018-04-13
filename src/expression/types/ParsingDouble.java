@@ -1,8 +1,5 @@
 package expression.types;
 
-import expression.exceptions.DivisionByZeroException;
-import expression.exceptions.EvaluatingException;
-
 public class ParsingDouble extends AbstractParsingType<Double> {
 
   public Double parse(String s) throws NumberFormatException {
@@ -10,7 +7,7 @@ public class ParsingDouble extends AbstractParsingType<Double> {
   }
 
   public Double fromInt(Integer v) {
-    return (double)v;
+    return (double) v;
   }
 
   public Double add(Double left, Double right) {
@@ -31,6 +28,26 @@ public class ParsingDouble extends AbstractParsingType<Double> {
 
   public Double neg(Double left) {
     return -left;
+  }
+
+  public Double count(Double v) {
+    return (double) (Long.bitCount(Double.doubleToLongBits(v)));
+  }
+
+  public Double min(Double left, Double right) {
+    if (left - right < 0) {
+      return left;
+    } else {
+      return right;
+    }
+  }
+
+  public Double max(Double left, Double right) {
+    if (left - right > 0) {
+      return left;
+    } else {
+      return right;
+    }
   }
 
   public Double evaluate(Double v) {

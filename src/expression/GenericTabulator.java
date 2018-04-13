@@ -4,10 +4,7 @@ import expression.exceptions.EvaluatingException;
 import expression.exceptions.ParsingException;
 import expression.expressions.TripleExpression;
 import expression.parser.ExpressionParser;
-import expression.types.ParsingBigInteger;
-import expression.types.ParsingDouble;
-import expression.types.ParsingInteger;
-import expression.types.ParsingType;
+import expression.types.*;
 
 public class GenericTabulator implements Tabulator {
   public Object[][][] tabulate(String mode, String expression, int x1, int x2, int y1, int y2, int z1, int z2) {
@@ -22,6 +19,12 @@ public class GenericTabulator implements Tabulator {
         return new ParsingDouble();
       case "bi":
         return new ParsingBigInteger();
+      case "u":
+        return new ParsingUInt();
+      case "l":
+        return new ParsingLong();
+      case "s":
+        return new ParsingShort();
       default:
         return null;
     }

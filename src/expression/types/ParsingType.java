@@ -21,6 +21,12 @@ public interface ParsingType<T> {
 
   T neg(T left) throws EvaluatingException;
 
+  T count(T v) throws EvaluatingException;
+
+  T min(T left, T right) throws EvaluatingException;
+
+  T max(T left, T right) throws EvaluatingException;
+
   Type getType();
 
   T zero();

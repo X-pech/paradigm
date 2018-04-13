@@ -30,6 +30,9 @@ public class ExpressionParser<T> implements Parser<T> {
     VAR,
     INV,
     NEU,
+    CNT,
+    MIN,
+    MAX
   }
 
   private Token token = Token.INV;
@@ -116,7 +119,13 @@ public class ExpressionParser<T> implements Parser<T> {
         index++;
       }
       String tokenStr = tokenSB.toString();
-      if (checkVariableName(tokenStr)) {
+      if (tokenStr.equals("count")) {
+        setToken(Token.CNT);
+      } else if (tokenStr.equals("min")) {
+        setToken(Token.MIN);
+      } else if (tokenStr.equals("max")) {
+        setToken(Token.MAX);
+      } else if (checkVariableName(tokenStr)) {
         setToken(Token.VAR);
         varName = tokenStr;
       } else {
@@ -130,7 +139,8 @@ public class ExpressionParser<T> implements Parser<T> {
   }
 
   private boolean isOperation(Token t) {
-    return (t == Token.ADD || t == Token.SUB || t == Token.MUL || t == Token.DIV || t == Token.NEG);
+    return (t == Token.ADD || t == Token.SUB || t == Token.MUL || t == Token.DIV || t == Token.NEG || t == Token.MIN
+        || token == Token.MAX || token == Token.CNT);
   }
 
   private boolean isNeutral(Token t) {
@@ -147,7 +157,7 @@ public class ExpressionParser<T> implements Parser<T> {
 
   private TripleExpression<T> lowestPriority() throws ParsingException {
     if (checkLowest()) {
-      return binAdd();
+      return minMax();
     } else {
       throw new MissingOperationException(expression, index);
     }
@@ -170,6 +180,13 @@ public class ExpressionParser<T> implements Parser<T> {
           res = new Negate<>(unary(), parsingType);
         } catch (NullExpressionException e) {
           throw new MissingOperandException(expression, index);
+        }
+        break;
+      case CNT:
+        try {
+          res = new Count<>(unary(), parsingType);
+        } catch (NullExpressionException e) {
+          throw new MissingOperationException(expression, index);
         }
         break;
       case OBR:
@@ -196,18 +213,18 @@ public class ExpressionParser<T> implements Parser<T> {
   }
 
   private TripleExpression<T> binMul() throws ParsingException {
-    TripleExpression<T> left = unary();
+    TripleExpression<T> res = unary();
     while (true) {
       try {
         switch (token) {
           case MUL:
-            left = new Multiply<>(left, unary(), parsingType);
+            res = new Multiply<>(res, unary(), parsingType);
             break;
           case DIV:
-            left = new Divide<>(left, unary(), parsingType);
+            res = new Divide<>(res, unary(), parsingType);
             break;
           default:
-            return left;
+            return res;
         }
       } catch (NullExpressionException e) {
         throw new MissingOperandException(expression, index);
@@ -232,6 +249,27 @@ public class ExpressionParser<T> implements Parser<T> {
       } catch (NullExpressionException e) {
         throw new MissingOperandException(expression, index);
       }
+    }
+  }
+
+  private TripleExpression<T> minMax() throws ParsingException {
+    TripleExpression<T> res = binAdd();
+    while (true) {
+      try {
+        switch (token) {
+          case MIN:
+            res = new Min<>(res, binAdd(), parsingType);
+            break;
+          case MAX:
+            res = new Max<>(res, binAdd(), parsingType);
+            break;
+          default:
+            return res;
+        }
+      } catch (NullExpressionException e) {
+        throw new MissingOperandException(expression, index);
+      }
+
     }
   }
 

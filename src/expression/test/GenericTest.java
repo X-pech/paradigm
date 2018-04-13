@@ -2,7 +2,6 @@ package expression.test;
 
 import expression.GenericTabulator;
 import expression.Tabulator;
-import expression.test.BaseTest;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
